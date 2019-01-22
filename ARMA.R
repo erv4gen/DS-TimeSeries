@@ -1,3 +1,5 @@
+#Source : https://www.youtube.com/channel/UCpviBv-De2_oeuSU_b968BQ
+
 #Simulate normal/exp WN
 w1 <- rnorm(1000,0,1)
 w2 <- rexp(1000,1)
