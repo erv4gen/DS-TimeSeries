@@ -1,5 +1,5 @@
 #Source : https://www.youtube.com/channel/UCpviBv-De2_oeuSU_b968BQ
-
+# Source code : https://drive.google.com/drive/folders/11-6-Rez2ERVgK0KU7Y2gq1S6twQ4tqGf
 library(ggplot2)
 
 ibmdata = read.table("c:\\data\\Datasets\\stockprices\\IBMdaily.txt",header=T)
