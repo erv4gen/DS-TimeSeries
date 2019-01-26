@@ -137,7 +137,7 @@ Box.test(resids.2, lag = (porder+qorder+1), type = "Ljung-Box", fitdf = (porder+
 
 ## Forecasting with ARIMA 
 ## 4 Years Ahead: 
-outtotal = arima(ts_totalMoose[1:nfit], order = c(porder,1,qorder),method = "ML")
+outtotal = arima(ts??_totalMoose[1:nfit], order = c(porder,1,qorder),method = "ML")
 final.pred.2 = predict(outtotal,n.ahead=4)$pred
 
 ymin = min(c(ts_totalMoose[(n-20):n],final.pred.1,final.pred.2))
