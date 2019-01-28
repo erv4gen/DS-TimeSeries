@@ -1,7 +1,7 @@
 library(MASS)
 VAR.sim <- function(phi,sigma,Y0,Time) {
   n <-dim(phi)[[1]]
-  res <-array(NA,c(T??ime+1,n))
+  res <-array(NA,c(Time+1,n))
   res[1,] <- Y0
   for(i in 2:(Time+1)) {
     res[i,] <- phi %*% res[i-1,] + mvrnorm(1,rep(0,n),sigma)
@@ -38,3 +38,28 @@ library(vars)
 
 model = VAR(simulated.Data,p=1)
 summary(model)
+
+model.residuals <- resid(model)
+
+#Test for Normality
+normality.test(model)
+
+##Testing for heterogeneouse variables
+arch.test(model)
+
+par(mfrow =c(3,2))
+
+for(i in 1:3){
+  plot(model.residuals[,i],main=paste("Residuals for series", i))
+  qqnorm(model.residuals[,i], main=paste('QQNorm for series',i))
+  qqline(model.residuals[,i])
+}
+
+
+## Independence assumption
+
+##Residuals plots: White Noise Assumptions
+acf(model.residuals)
+pacf(model.residuals)
+
+serial.test(model)
