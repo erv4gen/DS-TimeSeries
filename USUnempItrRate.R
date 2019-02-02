@@ -51,7 +51,7 @@ pord_hq = mod_hq$p; pord_sc = mod_sc$p; pord_fpe = mod_fpe$p
 mod = VAR(ddata.ts,pord_4, type="both")
 
 ## Residual Analysis: Constant Variance Assumption
-arch.test(mod)
+arch.test(mod) 
 
 ## Residual Analysis: Normality Assumption
 normality.test(mod)

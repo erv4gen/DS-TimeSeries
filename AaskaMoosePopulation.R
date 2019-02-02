@@ -1,7 +1,7 @@
 #R Script for Project#
 library(TSA)
 
-data=read.csv("c:\\data\\Datasets\\nature\\AlaskanMoosePopulationData.csv",header=T)       #Read in data#
+data=read.csv("c:\\data\\Datasets\\Environment\\AlaskanMoosePopulationData.csv",header=T)       #Read in data#
 names(data)=c("year", "fairbanksPop", "mooseHarvest", "totalMoose", "avgSnow", "wolfPop") #Name Columns#
 
 years=data[,"year"] 
@@ -137,7 +137,7 @@ Box.test(resids.2, lag = (porder+qorder+1), type = "Ljung-Box", fitdf = (porder+
 
 ## Forecasting with ARIMA 
 ## 4 Years Ahead: 
-outtotal = arima(ts??_totalMoose[1:nfit], order = c(porder,1,qorder),method = "ML")
+outtotal = arima(ts_totalMoose[1:nfit], order = c(porder,1,qorder),method = "ML")
 final.pred.2 = predict(outtotal,n.ahead=4)$pred
 
 ymin = min(c(ts_totalMoose[(n-20):n],final.pred.1,final.pred.2))
@@ -147,6 +147,92 @@ lines(years[(nfit+1):n],final.pred.1,col="red",lwd=2)
 lines(years[(nfit+1):n],final.pred.2,col="blue",lwd=2)
 legend(1998,16000,legend=c("Trend+ARMA","ARIMA"),col=c("red","blue"),lty=1)
 
+
+##############################################################################################
+n = nrow(data)
+data.train=data[1:(n-4),]
+data.test=data[(n-3):n,]
+
+
+dts_fairbanksPop= diff(ts_fairbanksPop)
+dts_mooseHarvest= diff(ts_mooseHarvest)
+dts_totalMoose= diff(ts_totalMoose)
+dts_avgSnow= diff(ts_avgSnow)
+dts_wolfPop= diff(ts_wolfPop)
+
 ####################################################################################
+library(vars)
+###VAR Model##
+ddata.train=cbind(dts_fairbanksPop,dts_mooseHarvest,dts_totalMoose, dts_avgSnow,dts_wolfPop)
+##Model Selection
+VARselect(ddata.train, lag.max = 20)$selection
+
+## Model Fitting: Unrestricted VAR
+model.var=VAR(ddata.train, p=4)
+summary(model.var)
+## Model Fitting: Restricted VAR
+model.var.restrict=restrict(model.var)  
+summary(model.var.restrict)
+
+## Granger Causality: Wald Test
+library(aod)
+coef.moosepop = coefficients(model.var)$dts_totalMoose[-(5*4+1),1]
+var.model = vcov(model.var)[1:(5*4),1:(5*4)]
+## Granger Causality: Fairbanks Population
+wald.test(b=coef.moosepop, var.model, Terms=seq(1, 5*4, 5))
+## Granger Causality: Moose Harvest
+wald.test(b=coef.moosepop, var.model, Terms=seq(2, 5*4, 5))
+## Granger Causality: Average Snow Fall
+wald.test(b=coef.moosepop, var.model, Terms=seq(4, 5*4, 5))
+## Granger Causality: Wolf Population
+wald.test(b=coef.moosepop, var.model, Terms=seq(5, 5*4, 5))
+## Granger Causality: Wolf Population & Fairbanks Population
+wald.test(b=coef.moosepop, var.model, Terms=c(seq(1, 5*4, 5),seq(5, 5*4, 5)))
+#######################################################################################
+### Reduced VAR Model##
+ddata.train=cbind(dts_mooseHarvest,dts_totalMoose, dts_avgSnow)
+##Model Selection
+VARselect(ddata.train, lag.max = 20)$selection
+
+## Model Fitting: Unrestricted VAR
+model.var=VAR(ddata.train, p=5)
+summary(model.var)
+## Model Fitting: Restricted VAR
+model.var.restrict=restrict(model.var)  
+summary(model.var.restrict)
+## Granger Causality
+p=5 
+nfactor=3
+coef.moosepop = coefficients(model.var)$dts_totalMoose[-(nfactor*p+1),1]
+var.model = vcov(model.var)[1:(nfactor*p),1:(nfactor*p)]
+## Moose Harvest
+wald.test(b=coef.moosepop, var.model, Terms=seq(1, nfactor*p, nfactor))
+## Snow Fall
+wald.test(b=coef.moosepop, var.model, Terms=seq(3, nfactor*p, nfactor))
+############################################################################
+## Model Forecasting
+
+
+pred.model=predict(model.var,n.ahead=4)
+dmoosepop.fcst = pred.model[[1]]$dts_totalMoose[,1]
+final.pred.3 = rep(0,4)
+final.pred.3[1] = ts_totalMoose[(n-4)]+dmoosepop.fcst[1]
+final.pred.3[2] = final.pred.3[1]+dmoosepop.fcst[2]
+final.pred.3[3] = final.pred.3[2]+dmoosepop.fcst[3]
+final.pred.3[4] = final.pred.3[3]+dmoosepop.fcst[4]
+
+######################################################################################333
+
+### Compare Predictions
+ts_totalMoose = ts(totalMoose,start=1965, freq=1)
+ymin = min(c(ts_totalMoose[(n-20):n],final.pred.1,final.pred.2,final.pred.3))
+ymax = max(c(ts_totalMoose[(n-20):n],final.pred.1,final.pred.2,final.pred.3))
+plot(years[(n-20):n], ts_totalMoose[(n-20):n],type="l", ylim=c(ymin,ymax), xlab="Time", ylab="Moose Population")
+lines(years[(nfit+1):n],final.pred.1,col="red",lwd=2)
+lines(years[(nfit+1):n],final.pred.2,col="blue",lwd=2)
+lines(years[(nfit+1):n],final.pred.3,col="green",lwd=2)
+legend(1987,16000,legend=c("Trend+ARMA","ARIMA","VAR"),col=c("red","blue","green"),lty=1)
+
+
 
 

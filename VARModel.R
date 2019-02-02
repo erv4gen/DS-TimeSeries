@@ -63,3 +63,8 @@ acf(model.residuals)
 pacf(model.residuals)
 
 serial.test(model)
+
+#Select Order
+var_sel <-VARselect(simulated.Data)
+
+plot(var_sel$criteria[1,],xlab='Order',ylab='AIC')
