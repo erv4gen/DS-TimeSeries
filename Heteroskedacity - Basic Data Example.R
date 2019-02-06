@@ -77,10 +77,6 @@ n=length(pdcert)
 pdcert.test = pdcert[2643:n]
 pdcert.train =  pdcert[-c(2643:n)]
 
-## garchFit from the fGarch library
-library(fGarch)
-archFit.ts = garchFit(~ arma(5,6)+ garch(1,1), data=pdcert[-1], trace = FALSE)
-
 ##### Order Selection ################################################
 ## Find GARCH Order given ARMA order identified before
 ## ugrach from rugarch libary
@@ -157,7 +153,7 @@ infocriteria(final.model.2)
 infocriteria(final.model.3)
 
 ## Residual Analysis 
-resids.final.model = residuals(final.model.3)
+resids.final.model = residuals(final.model.1)
 acf(resids.final.model,main="ACF of ARCH Residuals")
 acf(resids.final.model^2,main="ACF of Squared ARCH Residuals")                    
 Box.test(resids.final.model,lag=10,type='Ljung')
