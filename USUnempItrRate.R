@@ -9,7 +9,7 @@ data.ts = ts.union(intrate.ts,unemploym.ts)
 plot(data.ts, type="l",main="")
 acf(data.ts)
 pacf(data.ts)
-
+2
 ## Simultaneous lag correlation
 n = length(intrate.ts)
 cor(intrate.ts,unemploym.ts)

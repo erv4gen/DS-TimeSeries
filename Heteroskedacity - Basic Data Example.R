@@ -26,6 +26,8 @@ for (p in 1:6) for (d in 0:1) for (q in 1:6) {
 ## What is the selected order?
 #> final.order
 #[1] 5 0 6
+final.order <- c(5,0,6)
+
 
 ## Residual Analysis
 resids = resid(final.arima)[-1]
